@@ -1,0 +1,30 @@
+{
+  "practice": "PR01",
+  "commit": "4e784e9dbda8a6d0d140537420140b445958fd81",
+  "ai_used": true,
+  "public_tests_passed": true,
+  "defect_reproduced": true,
+  "defect_fixed": true,
+  "tests": [
+    {
+      "name": "working_graph",
+      "result": "passed",
+      "details": "Both nodes discovered in domain 16; one pose message received."
+    },
+    {
+      "name": "pose_frequency",
+      "result": "passed",
+      "details": "Measured for 12 seconds; final average rate was 62.498 Hz."
+    },
+    {
+      "name": "domain_isolation",
+      "result": "passed",
+      "details": "Domain 17 discovered only teleop; pose wait timed out after 5 seconds with exit 124."
+    },
+    {
+      "name": "domain_recovery",
+      "result": "passed",
+      "details": "After returning to domain 16, both nodes were discovered and pose was received with exit 0."
+    }
+  ]
+}

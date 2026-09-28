@@ -1,0 +1,12 @@
+{
+  "launch_method": "native",
+  "os_version": "Ubuntu 24.04.5 LTS (Noble Numbat)",
+  "kernel": "Linux 6.14.0-27-generic x86_64",
+  "ros_distribution": "jazzy",
+  "gazebo_version": "8.15.0",
+  "rmw": "rmw_fastrtps_cpp",
+  "experiment_domains": {
+    "working": 16,
+    "isolated": 17
+  }
+}
