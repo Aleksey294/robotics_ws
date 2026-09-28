@@ -1,3 +1,6 @@
 build/
 install/
 log/
+.course-kit/
+__pycache__/
+*.py[cod]
