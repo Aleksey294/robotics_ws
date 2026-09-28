@@ -1,0 +1,27 @@
+name: PR01
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON and required evidence
+        run: |
+          python3 -m json.tool evidence/pr01/environment.json >/dev/null
+          python3 -m json.tool evidence/pr01/report.json >/dev/null
+          test -s AI_USAGE.md
+          test -s evidence/pr01/doctor.txt
+          test -s evidence/pr01/graph.md
+
+      - name: Run course checker when available
+        run: |
+          if test -f .course-kit/v1/tools/check_practice.py; then
+            python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
+          else
+            echo "Course kit is not included; structural checks completed."
+          fi
