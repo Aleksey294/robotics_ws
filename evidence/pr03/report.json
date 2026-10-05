@@ -1,0 +1,40 @@
+{
+  "practice": "PR03",
+  "commit": "31158d9cb7678b74591d8f848a320d73a4f3de98",
+  "ai_used": true,
+  "public_tests_passed": true,
+  "defect_reproduced": true,
+  "defect_fixed": true,
+  "tests": [
+    {
+      "name": "package_build",
+      "result": "passed",
+      "details": "patrol built successfully with colcon build --symlink-install."
+    },
+    {
+      "name": "pure_command_selection",
+      "result": "passed",
+      "details": "Both no-pose and ordinary-pose cases passed under pytest and colcon test."
+    },
+    {
+      "name": "pose_subscription",
+      "result": "passed",
+      "details": "/turtle1/pose had the turtlesim publisher and patrol subscriber, and patrol published a nonzero command after receiving a pose."
+    },
+    {
+      "name": "relative_topic_defect",
+      "result": "passed",
+      "details": "/cmd_vel had one publisher and zero subscriptions while /turtle1/cmd_vel had no publisher; repeated pose readings remained unchanged."
+    },
+    {
+      "name": "remap_and_rate",
+      "result": "passed",
+      "details": "Remapping cmd_vel connected patrol to turtlesim, changed the pose, and produced a measured final average of 9.999 Hz over 97 intervals."
+    },
+    {
+      "name": "shutdown_timeout",
+      "result": "passed",
+      "details": "Two seconds after patrol stopped, turtlesim reported zero linear and angular velocity."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "practice": "PR02",
+  "commit": "269e683b76cdb6934d6e11ac5168989e99e1e983",
+  "ai_used": true,
+  "public_tests_passed": true,
+  "defect_reproduced": true,
+  "defect_fixed": true,
+  "tests": [
+    {
+      "name": "empty_package_build",
+      "result": "passed",
+      "details": "Initial package without a launch file built successfully; output saved in build-empty.txt."
+    },
+    {
+      "name": "final_package_build",
+      "result": "passed",
+      "details": "turtle_bringup built successfully and installed sim.launch.py."
+    },
+    {
+      "name": "package_tests",
+      "result": "passed",
+      "details": "colcon test reported 3 tests, 0 errors, 0 failures and 1 skipped copyright check."
+    },
+    {
+      "name": "launch_lifecycle",
+      "result": "passed",
+      "details": "Launch created /turtlesim; Ctrl+C stopped the child process and removed the node from the graph."
+    },
+    {
+      "name": "twist_delivery",
+      "result": "passed",
+      "details": "A one-shot Twist on /turtle1/cmd_vel changed x, y and theta."
+    },
+    {
+      "name": "wrong_topic",
+      "result": "passed",
+      "details": "/cmd_vel had one publisher and zero subscriptions; the pose did not change."
+    },
+    {
+      "name": "topic_name_fix",
+      "result": "passed",
+      "details": "Changing only the name to /turtle1/cmd_vel produced one publisher, one subscription and restored movement."
+    }
+  ]
+}

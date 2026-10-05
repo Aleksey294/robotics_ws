@@ -1,0 +1,71 @@
+PR03 verification
+Date: 2026-10-06
+Environment: Ubuntu 24.04, ROS 2 Jazzy, Python 3.12.3
+
+1. Build
+Command: colcon build --symlink-install --packages-select patrol
+Result: passed
+Output:
+Starting >>> patrol
+Finished <<< patrol [1.80s]
+Summary: 1 package finished [2.07s]
+
+2. Installed package and executable
+Commands:
+  ros2 pkg prefix patrol
+  ros2 pkg executables patrol
+Result: passed
+Output:
+  /home/alexai/robotics_ws/install/patrol
+  patrol patrol
+
+3. Pose interface selected for Jazzy
+Command: ros2 interface show turtlesim/msg/Pose
+Result: passed
+Output fields: x, y, theta, linear_velocity, angular_velocity (all float32)
+
+4. Pure command tests
+Command: python3 -m pytest -q src/patrol/test
+Result: passed
+Output: 2 passed in 0.24s
+
+5. Package test runner
+Commands:
+  colcon test --packages-select patrol --event-handlers console_direct+
+  colcon test-result --verbose --test-result-base build/patrol
+Result: passed
+Output: Summary: 2 tests, 0 errors, 0 failures, 0 skipped
+
+6. Relative-topic defect
+Command: ros2 run patrol patrol
+Result: reproduced
+Observed:
+  /patrol and /turtlesim were present in the graph.
+  /turtle1/pose had one publisher and patrol as its one subscriber.
+  /cmd_vel had one publisher and zero subscribers.
+  /turtle1/cmd_vel had zero publishers and one subscriber.
+  /cmd_vel carried linear.x=0.5 and angular.z=0.3.
+  Two pose reads remained x=5.544444561004639, y=5.544444561004639,
+  theta=0.0 with zero linear and angular velocity.
+
+7. Remap fix and rate
+Command: ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+Result: passed
+Observed:
+  /turtle1/cmd_vel had patrol as one publisher and turtlesim as one subscriber.
+  Pose changed to x=4.326399803161621, y=8.352982521057129,
+  theta=-2.327970504760742 with velocities 0.5 and 0.30000001192092896.
+  ros2 topic hz measured 9.999 Hz over the final window of 97 intervals;
+  min=0.099s, max=0.101s, std dev=0.00023s.
+
+8. Shutdown observation
+Result: passed
+Observed: two seconds after stopping patrol with Ctrl+C, turtlesim reported
+linear_velocity=0.0 and angular_velocity=0.0. Publisher disappearance was not
+treated as an immediate braking command.
+
+9. Course checker
+Command: python3 .course-kit/v1/tools/check_practice.py PR03 --submission .
+Result: not run
+Reason: .course-kit is not present in this workspace or elsewhere under
+/home/alexai. Run this check after installing the current week's course kit.
