@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR05",
+  "commit": "cf8af7e21493fcd2fe748fa4f4ac682a0234645c",
+  "course_kit": {
+    "version": "v1-w12",
+    "archive_sha256": "525e86f818ffed166e7f7b67cc87fdd3f3ea840d13aa90e76bde9fda0f3c9c5a",
+    "archive_url": "https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w12-525e86f818ff.tar.gz"
+  },
+  "commands": [
+    "source /opt/ros/jazzy/setup.bash",
+    "colcon build --symlink-install",
+    "source install/setup.bash",
+    "ROS_DOMAIN_ID=195 python3 -m pytest src/patrol/test src/course_bringup/test -v",
+    "ROS_DOMAIN_ID=195 colcon test --event-handlers console_direct+ --return-code-on-test-failure",
+    "colcon test-result --verbose",
+    "ROS_DOMAIN_ID=196 python3 tools/record_pr05.py --output /tmp/pr05-all-queries-ready",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 launch course_bringup patrol.launch.py --show-args",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false bag_dir:=/tmp/pr05-all-queries-ready/bag",
+    "ros2 topic info /robot_a/sensor_pose --verbose --no-daemon --spin-time 2",
+    "ros2 topic list --no-daemon --spin-time 2",
+    "ros2 node info /robot_a/patrol --no-daemon --spin-time 2",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose turtlesim/msg/Pose --qos-reliability reliable --once --no-daemon --spin-time 0.1",
+    "ros2 run course_bringup pose_subscriber --ros-args -r __ns:=/robot_a -r __node:=replay_reliable -p reliability:=reliable",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=best_effort record:=true bag_dir:=/tmp/pr05-all-queries-ready/bag",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose turtlesim/msg/Pose --qos-reliability best_effort --once --no-daemon --spin-time 0.1",
+    "ros2 bag info /tmp/pr05-all-queries-ready/bag",
+    "ros2 run course_bringup pose_subscriber --ros-args -r __ns:=/robot_a -r __node:=replay_best_effort -p reliability:=best_effort",
+    "ros2 bag play /tmp/pr05-all-queries-ready/bag --loop --qos-profile-overrides-path /home/alexai/robotics_ws/config/qos-overrides.yaml --disable-keyboard-controls",
+    "python3 .course-kit/v1/tools/check_practice.py PR05 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "All 3 packages build with colcon",
+      "status": "passed"
+    },
+    {
+      "name": "49 patrol tests and 10 course_bringup tests pass under pytest",
+      "status": "passed"
+    },
+    {
+      "name": "colcon: 62 tests, 0 errors, 0 failures, 1 skipped",
+      "status": "passed"
+    },
+    {
+      "name": "Existing turtle_bringup copyright test is skipped by its original decorator",
+      "status": "skipped"
+    },
+    {
+      "name": "DDS relay preserves serialized Pose and delivers only to a compatible subscriber",
+      "status": "passed"
+    },
+    {
+      "name": "Namespace and remap: course nodes under /robot_a, one global turtlesim, patrol output /turtle1/cmd_vel",
+      "status": "passed"
+    },
+    {
+      "name": "record=false leaves no recorder or bag; record=true starts MCAP recorder through launch",
+      "status": "passed"
+    },
+    {
+      "name": "Live reliable echo exits 124; subscriber count remains zero and RELIABILITY warning is logged",
+      "status": "passed"
+    },
+    {
+      "name": "Live best_effort echo receives a pose and subscriber count increases",
+      "status": "passed"
+    },
+    {
+      "name": "Single MCAP contains only /robot_a/sensor_pose, 515 messages",
+      "status": "passed"
+    },
+    {
+      "name": "After stopping the live system, one player with QoS override feeds both profiles from the same bag",
+      "status": "passed"
+    },
+    {
+      "name": "Replay reliable echo exits 124 and count stays zero; best_effort echo and node receive poses",
+      "status": "passed"
+    },
+    {
+      "name": "MCAP SHA-256 is unchanged after both replay checks; launch processes finish cleanly",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "reproducer": "Launch with subscriber_reliability:=reliable record:=false. /robot_a/sensor_pose is visible; topic info shows a BEST_EFFORT publisher and RELIABLE subscriber. A 3-second reliable echo returns 124; the subscriber count stays zero. Repeat the reliable profile on the saved bag with best_effort playback: the same timeout and zero count occur. See qos-before.txt.",
+    "root_cause": "The sensor offers best_effort but the subscriber requests reliable. DDS discovers both endpoints but cannot match their reliability requirements, so no pose callbacks run.",
+    "proof_after": "Restart with subscriber_reliability:=best_effort record:=true. The live subscriber and echo receive poses. Stop the live launch and replay the same single MCAP with config/qos-overrides.yaml; best_effort receives while reliable still times out. Both checks use an unchanged bag SHA-256. See qos-after.txt and bag-metadata.yaml."
+  },
+  "bag": {
+    "directory": "evidence/pr05/bag",
+    "storage_identifier": "mcap",
+    "topic": "/robot_a/sensor_pose",
+    "type": "turtlesim/msg/Pose",
+    "message_count": 515,
+    "duration_nanoseconds": 8223904173,
+    "file": "bag_0.mcap",
+    "sha256": "a5ab9bbb3508550f45ebeffca47048bdc2904b61002b9bbcf3a0640931cf12f0",
+    "replay_qos_override": "config/qos-overrides.yaml"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true,
+    "replay_verified": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 0,
+    "reported_by_author": true
+  },
+  "ai_used": true
+}

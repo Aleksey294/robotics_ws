@@ -1,3 +1,10 @@
 build/
 install/
 log/
+.course-kit/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+robotics-course-kit-*.tar.gz
+robotics-course-kit-*.sha256.txt
+evidence/pr04/ros-logs/

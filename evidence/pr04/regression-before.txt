@@ -1,0 +1,43 @@
+$ PYTHONPATH=/tmp/pr04-frequency-defect/src/patrol python3 -m pytest 'src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]' -q
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_invalid_frequency_keeps_active_state[0.0] ________________
+
+node = <patrol.patrol.Patrol object at 0x718483f88fe0>, hz = 0.0
+
+    @pytest.mark.parametrize('hz', [0.0, -1.0, float('nan'), float('inf'), 31.0])
+    def test_invalid_frequency_keeps_active_state(node, hz):
+        assert node.set_parameters_atomically([
+            Parameter('publish_hz', value=5.0),
+        ]).successful
+        old_timer = node.command_timer
+>       result = node.set_parameters_atomically([Parameter('publish_hz', value=hz)])
+
+src/patrol/test/test_node_parameters.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py:839: in set_parameters_atomically
+    return self._set_parameters_atomically(parameter_list)
+/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py:859: in _set_parameters_atomically
+    return self._set_parameters_atomically_common(parameter_list)
+/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py:962: in _set_parameters_atomically_common
+    self._call_post_set_parameters_callback(parameter_list)
+/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py:1055: in _call_post_set_parameters_callback
+    callback(parameter_list)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <patrol.patrol.Patrol object at 0x718483f88fe0>
+parameters = [<rclpy.parameter.Parameter object at 0x71848579ae10>]
+
+    def apply_parameter_update(self, parameters):
+        """Apply a committed proposal after all validators have accepted it."""
+        settings = self.proposed_settings(parameters)
+        if settings['publish_hz'] != self.publish_hz:
+>           period = 1.0 / settings['publish_hz']
+E           ZeroDivisionError: float division by zero
+
+/tmp/pr04-frequency-defect/src/patrol/patrol/patrol.py:77: ZeroDivisionError
+=========================== short test summary info ============================
+FAILED src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]
+1 failed in 0.33s
+
+[exit 1]
