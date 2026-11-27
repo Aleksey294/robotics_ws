@@ -43,7 +43,7 @@ class Patrol(Node):
         self.command_publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.pose_subscription = self.create_subscription(
             Pose,
-            '/turtle1/pose',
+            'turtle1/pose',
             self.pose_callback,
             10,
         )

@@ -1,132 +1,148 @@
-# ROS 2 Robotics Course — ПР04
+# ПР05. Launch, QoS и повтор записи
 
-Ветка `lab_4` продолжает `patrol` из ПР03: подписка сохраняет последнюю позу,
-а один таймер публикует `Twist`. Параметры работающей ноды задают скорость,
-поворот и частоту публикации. Среда проверки — Ubuntu 24.04, ROS 2 Jazzy.
+Ветка `lab_5` содержит пакет `course_bringup`: launch для `patrol`,
+`pose_relay`, подписчика с выбором QoS и записи сенсорного потока в MCAP.
 
-| Параметр | По умолчанию | Допустимые конечные значения |
-| --- | --- | --- |
-| `linear_speed` | `0.5` м/с | `[0, 1]` |
-| `turn_rate` | `0.3` рад/с | `[-1, 1]` |
-| `publish_hz` | `10.0` Гц | `[1, 30]` |
-
-Все три ROS-параметра имеют тип `double`: в CLI используйте `5.0`, а не `5`.
-NaN и бесконечности отклоняются. До первой позы публикуется нулевая команда.
-
-## Сборка и запуск
+## Сборка
 
 Из корня репозитория:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-colcon build --symlink-install --packages-select turtle_bringup patrol
+colcon build --symlink-install
 source install/setup.bash
-export ROS_DOMAIN_ID=184
+export ROS_DOMAIN_ID=196
+ros2 launch course_bringup patrol.launch.py --show-args
 ```
 
-Подключите ROS, workspace и одинаковый свободный домен в каждом терминале.
-В первом запустите симулятор, во втором — ноду с remap из ПР03:
+В каждом терминале подключите ROS, workspace и тот же свободный домен.
+
+| Аргумент | По умолчанию | Назначение |
+| --- | --- | --- |
+| `namespace` | `robot_a` | Пространство имён patrol, relay и подписчика |
+| `record` | `false` | При `true` запускается recorder через `IfCondition` |
+| `bag_dir` | `evidence/pr05/bag` | Новый каталог MCAP |
+| `subscriber_reliability` | `best_effort` | Профиль подписчика: `best_effort` или `reliable` |
+
+Один turtlesim запускается глобально. Внутри нод имена относительные.
+Launch переназначает вход patrol и relay на `/turtle1/pose`, выход patrol —
+на `/turtle1/cmd_vel`. Relay пересылает позу без изменений в
+`/robot_a/sensor_pose` с `best_effort`. Подписчик раз в секунду выводит
+число полученных сообщений. Профиль выбирается при запуске; для его изменения
+перезапустите launch с другим аргументом. Используется реальное время.
+
+## Несовместимый QoS
+
+В первом терминале:
 
 ```bash
-ros2 launch turtle_bringup sim.launch.py
+ros2 launch course_bringup patrol.launch.py \
+  namespace:=robot_a subscriber_reliability:=reliable record:=false
 ```
 
+Во втором:
+
 ```bash
-ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+ros2 node list --no-daemon
+ros2 topic list
+ros2 node info /robot_a/patrol
+ros2 topic info /robot_a/sensor_pose --verbose
+timeout 3s ros2 topic echo /robot_a/sensor_pose \
+  --qos-reliability reliable --once
 ```
 
-В третьем терминале:
+Топик виден, но команда завершается с кодом `124` и без сообщения позы.
+В диагностике у relay указан `BEST_EFFORT`, у подписчика — `RELIABLE`;
+в логе подписчика счётчик остаётся нулевым. Recorder при `record:=false`
+не запускается. Причина — несовместимость запрашиваемой и предлагаемой
+надёжности: best effort-издатель не обслуживает reliable-подписчика.
+
+## Исправление и одна запись
+
+Остановите предыдущий launch через Ctrl+C и запустите:
 
 ```bash
-ros2 topic type /turtle1/pose
-ros2 param list /patrol
-ros2 param get /patrol publish_hz
-ros2 topic hz /turtle1/cmd_vel --window 30
-# Завершите измерение Ctrl+C через 6 секунд: около 10 Гц.
-ros2 param set /patrol publish_hz 5.0
-ros2 topic hz /turtle1/cmd_vel --window 30
-# Около 5 Гц; завершите измерение Ctrl+C.
-ros2 param set /patrol publish_hz 0.0
-ros2 param get /patrol publish_hz
-ros2 topic hz /turtle1/cmd_vel --window 30
-# Ноль отклонён, параметр 5.0, поток около 5 Гц.
-ros2 param set /patrol publish_hz -1.0
-ros2 param set /patrol publish_hz .nan
-ros2 param set /patrol linear_speed 0.8
-ros2 param set /patrol turn_rate -0.5
-ros2 topic echo /turtle1/cmd_vel --once
-ros2 service call /clear std_srvs/srv/Empty '{}'
-ros2 action list -t
+ros2 launch course_bringup patrol.launch.py \
+  namespace:=robot_a subscriber_reliability:=best_effort \
+  record:=true bag_dir:=/tmp/pr05-my-bag
 ```
 
-В Jazzy тип позы — `turtlesim/msg/Pose`; код также поддерживает импорт
-`turtlesim_msgs/msg/Pose` для дистрибутивов с выделенным пакетом интерфейсов.
-Зависимость `turtlesim` в `package.xml` соответствует проверенному Jazzy.
-
-## Как применяются параметры
-
-Чистая функция в `patrol/parameters.py` проверяет все предложенные значения.
-`on_set` выполняет только проверку: отказ любого валидатора оставляет параметры,
-активные поля и таймер прежними. После успешного принятия `post_set` применяет
-настройки. При смене частоты создаётся остановленный таймер с периодом `1/hz`,
-старый отменяется и удаляется, затем новый запускается. Два активных таймера
-одновременно не работают; изменение только скоростей таймер не заменяет.
-Начальные переопределения тоже проверяются до создания таймера.
-
-Для единого принятия нескольких параметров используйте сервис
-`/patrol/set_parameters_atomically`: обычный `set_parameters` обрабатывает их
-по одному. Нода работает с обычным однопоточным executor.
-
-## Проверки и воспроизведение дефекта
+Выберите новый `bag_dir`: rosbag2 не перезаписывает существующий каталог.
+Recorder пишет только `/robot_a/sensor_pose` в MCAP. Во втором терминале:
 
 ```bash
-python3 -m pytest src/patrol/test
-colcon test --event-handlers console_direct+ --return-code-on-test-failure
+timeout 3s ros2 topic echo /robot_a/sensor_pose \
+  --qos-reliability best_effort --once
+ros2 topic info /robot_a/sensor_pose --verbose
+```
+
+Теперь приходит поза и растёт счётчик подписчика. Через несколько секунд
+остановите launch через Ctrl+C: recorder завершит запись и сохранит metadata.
+Все процессы launch должны завершиться; перед replay живых издателей
+`sensor_pose` оставаться не должно.
+
+## Повтор того же MCAP
+
+В первом терминале:
+
+```bash
+ros2 bag info /tmp/pr05-my-bag
+ros2 bag play /tmp/pr05-my-bag --loop \
+  --qos-profile-overrides-path config/qos-overrides.yaml
+```
+
+Во втором последовательно проверьте оба профиля:
+
+```bash
+ros2 topic info /robot_a/sensor_pose --verbose
+timeout 3s ros2 topic echo /robot_a/sensor_pose \
+  --qos-reliability reliable --once
+timeout 3s ros2 topic echo /robot_a/sensor_pose \
+  --qos-reliability best_effort --once
+```
+
+Первая команда echo снова завершается по timeout, вторая получает сообщение.
+Единственный издатель при replay — `rosbag2_player`; живой relay остановлен.
+Оба подписчика проверяются на одной записи. `--loop` даёт время выполнить
+обе команды; завершите player через Ctrl+C.
+
+В `config/qos-overrides.yaml` задан `best_effort`, `keep_last`, глубина 10
+для `/robot_a/sensor_pose`. При выборе другого namespace обновите имя топика
+в override перед replay.
+
+## Проверки и материалы сдачи
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ROS_DOMAIN_ID=195 python3 -m pytest src/patrol/test src/course_bringup/test
+ROS_DOMAIN_ID=195 colcon test --event-handlers console_direct+ --return-code-on-test-failure
 colcon test-result --verbose
+python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
 ```
 
-Сценарий ниже сам запускает настоящие turtlesim и patrol в свободном домене,
-выполняет команды CLI, проверяет частоту и сохраняет фактический вывод.
-`QT_QPA_PLATFORM=offscreen` позволяет обойтись без окна при автоматической проверке.
+Тесты проверяют параметры patrol, совместимость профилей, реальные callbacks DDS,
+сохранение содержимого сообщения при relay, namespace и remap.
+
+Для полного повторения опыта в свободном домене:
 
 ```bash
-ROS_DOMAIN_ID=184 python3 tools/record_pr04.py --output /tmp/pr04-check/commands.md
+ROS_DOMAIN_ID=196 python3 tools/record_pr05.py --output /tmp/pr05-new-experiment
 ```
 
-В отдельной локальной ветке `lab_4_defect` сохранён коммит с отключённой проверкой
-`publish_hz`. Ноль проходит проверку, затем вычисление периода вызывает
-`ZeroDivisionError` и процесс завершается. В основной ветке восстановлена проверка.
-SHA дефекта и его патч находятся в `evidence/pr04/`; патч позволяет повторить опыт
-даже без опубликованной ветки дефекта:
+Сценарий запускает launch без записи и с записью, проверяет несовместимый
+и исправленный профиль, сохраняет MCAP, затем повторяет оба профиля на этом же
+файле. Окно turtlesim отключено через `QT_QPA_PLATFORM=offscreen`.
+Существующие записи не перезаписываются. Проверяется завершение процессов
+и неизменность SHA-256 MCAP после replay.
 
-```bash
-git worktree add --detach /tmp/pr04-defect HEAD
-git -C /tmp/pr04-defect apply "$PWD/evidence/pr04/defect.patch"
-PYTHONPATH=/tmp/pr04-defect/src/patrol python3 -m pytest \
-  'src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]' -q
-ROS_DOMAIN_ID=185 python3 tools/record_pr04.py --source /tmp/pr04-defect \
-  --expect-broken --output /tmp/pr04-defect-check/commands.md
-# Версия с проверкой: тот же регрессионный тест проходит.
-python3 -m pytest \
-  'src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]' -q
-```
+Материалы: [до исправления](evidence/pr05/qos-before.txt),
+[после исправления и replay](evidence/pr05/qos-after.txt),
+[metadata](evidence/pr05/bag-metadata.yaml), [MCAP](evidence/pr05/bag/bag_0.mcap),
+[тесты](evidence/pr05/tests.txt), [отчёт](evidence/pr05/report.json).
 
-Для официального checker скачайте зафиксированный комплект:
-
-```bash
-mkdir -p .course-kit
-curl -fsS https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w12-525e86f818ff.tar.gz \
-  -o /tmp/pr04-course-kit.tar.gz
-printf '%s\n' '525e86f818ffed166e7f7b67cc87fdd3f3ea840d13aa90e76bde9fda0f3c9c5a  /tmp/pr04-course-kit.tar.gz' | sha256sum -c -
-tar -xzf /tmp/pr04-course-kit.tar.gz -C .course-kit
-python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
-```
-
-Course kit `v1-w12` — текущая накопительная ревизия при выполнении работы;
-она содержит официальный манифест ПР04. CI использует тот же URL и SHA-256,
-собирает пакеты, выполняет тесты и реальный опыт, затем запускает checker.
-
-Результаты: [параметры и объяснение](evidence/pr04/parameters.md),
-[вывод проверок](evidence/pr04/tests.txt), [отчёт](evidence/pr04/report.json).
-`report.commit` указывает на коммит реализации; evidence и `AI_USAGE.md`
-добавлены следующим коммитом по [runbook курса](https://ros.lms.ci.nsu.ru/practices/runbook#two-commits).
+CI собирает три пакета, запускает тесты, повторяет live/replay-опыт в новом
+каталоге и проверяет отчёт официальным checker. Используется зафиксированный
+course kit `v1-w12` с манифестом ПР05; URL и SHA-256 указаны в workflow.
+Коммит реализации и следующий коммит evidence разделены; `report.commit`
+указывает на реализацию.

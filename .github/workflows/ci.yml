@@ -1,4 +1,4 @@
-name: PR04
+name: PR05
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 env:
   COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w12-525e86f818ff.tar.gz
   COURSE_KIT_SHA256: 525e86f818ffed166e7f7b67cc87fdd3f3ea840d13aa90e76bde9fda0f3c9c5a
-  ROS_DOMAIN_ID: '184'
-  ROS_LOG_DIR: /tmp/pr04-ros-logs
+  ROS_DOMAIN_ID: '195'
+  ROS_LOG_DIR: /tmp/pr05-ros-logs
 
 jobs:
   build-and-check:
@@ -33,6 +33,7 @@ jobs:
           apt-get update
           apt-get install -y ros-jazzy-turtlesim ros-jazzy-geometry-msgs \
             ros-jazzy-rcl-interfaces ros-jazzy-std-srvs \
+            ros-jazzy-ros2bag ros-jazzy-rosbag2-py ros-jazzy-rosbag2-storage-mcap \
             ros-jazzy-ament-copyright ros-jazzy-ament-flake8 ros-jazzy-ament-pep257 \
             python3-pytest python3-pytest-cov python3-yaml \
             python3-colcon-common-extensions
@@ -40,37 +41,37 @@ jobs:
       - name: Download pinned course kit and verify SHA-256
         run: |
           mkdir -p .course-kit
-          curl -fsS "$COURSE_KIT_URL" -o /tmp/pr04-course-kit.tar.gz
-          printf '%s  %s\n' "$COURSE_KIT_SHA256" /tmp/pr04-course-kit.tar.gz | sha256sum -c -
-          tar -xzf /tmp/pr04-course-kit.tar.gz -C .course-kit
+          curl -fsS "$COURSE_KIT_URL" -o /tmp/pr05-course-kit.tar.gz
+          printf '%s  %s\n' "$COURSE_KIT_SHA256" /tmp/pr05-course-kit.tar.gz | sha256sum -c -
+          tar -xzf /tmp/pr05-course-kit.tar.gz -C .course-kit
 
-      - name: Build patrol and turtle_bringup
+      - name: Build packages
         run: |
           source /opt/ros/jazzy/setup.bash
-          colcon build --symlink-install --packages-select turtle_bringup patrol
+          colcon build --symlink-install
 
       - name: Test packages
         run: |
           source /opt/ros/jazzy/setup.bash
           source install/setup.bash
-          python3 -m pytest src/patrol/test
+          python3 -m pytest src/patrol/test src/course_bringup/test
           colcon test --event-handlers console_direct+ --return-code-on-test-failure
           colcon test-result --verbose
 
-      - name: Verify live parameters and stream
+      - name: Verify live QoS and replay of one MCAP
         run: |
           source /opt/ros/jazzy/setup.bash
           source install/setup.bash
-          python3 tools/record_pr04.py --output /tmp/pr04-ci/commands.md
+          ROS_DOMAIN_ID=196 python3 tools/record_pr05.py --output /tmp/pr05-ci
 
-      - name: Validate PR04 evidence with official checker
-        run: python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
+      - name: Validate PR05 evidence with official checker
+        run: python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
 
-      - name: Upload live experiment and test logs
+      - name: Upload QoS, bag and test logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pr04-checks
+          name: pr05-checks
           path: |
-            /tmp/pr04-ci/
+            /tmp/pr05-ci/
             log/latest_test/
