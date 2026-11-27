@@ -1,0 +1,12 @@
+[INFO] [1795755677.600567286] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755678.585469001] [robot_a.replay_reliable]: reliability=reliable received=0
+[WARN] [1795755679.166819285] [robot_a.replay_reliable]: New publisher discovered on topic 'sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+[INFO] [1795755679.585464320] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755680.585728245] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755681.585413287] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755682.585535671] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755683.585762069] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755684.585436015] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755685.585580386] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755686.585554896] [robot_a.replay_reliable]: reliability=reliable received=0
+[INFO] [1795755687.585521088] [robot_a.replay_reliable]: reliability=reliable received=0

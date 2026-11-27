@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR04",
+  "commit": "39e59112bf2518d9f6f9ee187d790976619a3663",
+  "course_kit": {
+    "version": "v1-w12",
+    "archive_sha256": "525e86f818ffed166e7f7b67cc87fdd3f3ea840d13aa90e76bde9fda0f3c9c5a",
+    "archive_url": "https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w12-525e86f818ff.tar.gz"
+  },
+  "environment": {
+    "os": "Ubuntu 24.04.5 LTS",
+    "ros_distro": "jazzy",
+    "python": "3.12.3",
+    "experiment_date": "2026-11-27",
+    "timezone": "Asia/Novokuznetsk",
+    "fixed_ros_domain_id": 184,
+    "broken_ros_domain_id": 185,
+    "unit_test_ros_domain_id": 186,
+    "simulation": "Real turtlesim, QT_QPA_PLATFORM=offscreen",
+    "pose_type": "turtlesim/msg/Pose",
+    "operator": "Codex по поручению автора; фактические локальные ROS-процессы и CLI"
+  },
+  "commands": [
+    "source /opt/ros/jazzy/setup.bash",
+    "colcon build --symlink-install --packages-select turtle_bringup patrol",
+    "source install/setup.bash",
+    "python3 -m pytest src/patrol/test -v",
+    "colcon test --event-handlers console_direct+ --return-code-on-test-failure",
+    "colcon test-result --verbose",
+    "ROS_DOMAIN_ID=184 python3 tools/record_pr04.py --output evidence/pr04/fixed-commands.md",
+    "ROS_DOMAIN_ID=185 python3 tools/record_pr04.py --source /tmp/pr04-frequency-defect --expect-broken --output evidence/pr04/broken-commands.md",
+    "ros2 param set /patrol publish_hz 5.0",
+    "ros2 param set /patrol publish_hz 0.0",
+    "ros2 param set /patrol publish_hz -1.0",
+    "ros2 param set /patrol publish_hz .nan",
+    "ros2 param get /patrol publish_hz",
+    "ros2 topic hz /turtle1/cmd_vel --window 30",
+    "ros2 param set /patrol linear_speed 0.8",
+    "ros2 param set /patrol turn_rate -0.5",
+    "ros2 topic echo /turtle1/cmd_vel --once",
+    "ros2 topic type /turtle1/pose",
+    "ros2 service call /clear std_srvs/srv/Empty '{}'",
+    "ros2 action list -t",
+    "PYTHONPATH=/tmp/pr04-frequency-defect/src/patrol python3 -m pytest 'src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]' -q",
+    "PYTHONPATH=/home/alexai/robotics_ws/src/patrol python3 -m pytest 'src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]' -q",
+    "python3 .course-kit/v1/tools/check_practice.py PR04 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "32 pure-validator cases: 10 and 5 Hz, zero, negatives, boundaries, NaN, infinities and invalid types",
+      "status": "passed"
+    },
+    {
+      "name": "13 real-rclpy tests: timer replacement, rejected proposal, atomic batch, later validator veto and startup overrides",
+      "status": "passed"
+    },
+    {
+      "name": "4 command tests: no pose, default speeds, changed speeds and no pose with changed speeds",
+      "status": "passed"
+    },
+    {
+      "name": "colcon: 52 tests, 0 errors, 0 failures, 1 skipped",
+      "status": "passed"
+    },
+    {
+      "name": "Existing turtle_bringup copyright test disabled by its original skip decorator",
+      "status": "skipped"
+    },
+    {
+      "name": "Identical zero-frequency regression: ZeroDivisionError in defect branch; passes with validation restored",
+      "status": "passed"
+    },
+    {
+      "name": "Real CLI stream: about 10 Hz, then 5 Hz; rejected zero retains 5.0 and about 5 Hz",
+      "status": "passed"
+    },
+    {
+      "name": "Negative and NaN proposals rejected; changed Twist has linear.x=0.8 and angular.z=-0.5",
+      "status": "passed"
+    },
+    {
+      "name": "/clear returned Empty_Response; /turtle1/rotate_absolute [turtlesim/action/RotateAbsolute] found",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "branch": "lab_4_defect",
+    "commit": "1da177d4248cbc2fc2f318a55d3f742d7a00f96f",
+    "branch_published": false,
+    "reproduction_patch": "evidence/pr04/defect.patch",
+    "reproducer": "Remove only the publish_hz bound from the validator; start patrol, set 5.0 then 0.0. Patrol exits with ZeroDivisionError at 1.0 / publish_hz. Real commands and traceback are in broken-commands.md and broken-commands-patrol.txt; identical failing regression in regression-before.txt.",
+    "root_cause": "Missing validation allows zero to be committed in ROS. The post-set callback divides by zero while computing the timer period, terminating the process before the service replies.",
+    "proof_after": "lab_4 validates finite publish_hz in [1, 30] before applying values. Zero is rejected, get still returns 5.0, and measured stream stays about 5 Hz. The same regression passes and proves the old timer, active fields and stored parameter are preserved. See fixed-commands.md and regression-after.txt."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2.5,
+    "reported_by_author": true,
+    "basis": "Фактическое время самостоятельной работы сообщено автором: 2,5 часа."
+  },
+  "ai_used": true
+}

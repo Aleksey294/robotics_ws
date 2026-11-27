@@ -1,0 +1,148 @@
+$ colcon build --symlink-install
+Starting >>> patrol
+Starting >>> course_description
+Starting >>> turtle_bringup
+Finished <<< patrol [2.92s]
+Starting >>> course_bringup
+Finished <<< course_description [2.93s]
+Finished <<< turtle_bringup [3.17s]
+Finished <<< course_bringup [1.94s]
+
+Summary: 4 packages finished [5.03s]
+
+[exit 0]
+
+$ python3 -m pytest src/course_description/test -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/alexai/robotics_ws/src/course_description
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collecting ... collected 24 items
+
+src/course_description/test/test_model.py::test_connected_acyclic_single_parent_tree PASSED [  4%]
+src/course_description/test/test_model.py::test_lidar_parent PASSED      [  8%]
+src/course_description/test/test_model.py::test_sensor_pose_in_base[camera_link] PASSED [ 12%]
+src/course_description/test/test_model.py::test_sensor_pose_in_base[lidar_link] PASSED [ 16%]
+src/course_description/test/test_model.py::test_sensor_pose_in_base[imu_link] PASSED [ 20%]
+src/course_description/test/test_model.py::test_optical_axes_follow_rep103 PASSED [ 25%]
+src/course_description/test/test_model.py::test_physical_links_have_visual_collision_and_valid_inertia PASSED [ 29%]
+src/course_description/test/test_model.py::test_all_geometry_numbers_are_finite_and_dimensions_positive PASSED [ 33%]
+src/course_description/test/test_model.py::test_dimensions_reposition_both_axles_and_resize_wheels[0.8-0.62-0.12] PASSED [ 37%]
+src/course_description/test/test_model.py::test_dimensions_reposition_both_axles_and_resize_wheels[1.0-0.7-0.15] PASSED [ 41%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[0-wheelbase] PASSED [ 45%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[0-track] PASSED [ 50%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[0-wheel_radius] PASSED [ 54%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[-0.1-wheelbase] PASSED [ 58%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[-0.1-track] PASSED [ 62%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[-0.1-wheel_radius] PASSED [ 66%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[nan-wheelbase] PASSED [ 70%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[nan-track] PASSED [ 75%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[nan-wheel_radius] PASSED [ 79%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[inf-wheelbase] PASSED [ 83%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[inf-track] PASSED [ 87%]
+src/course_description/test/test_model.py::test_invalid_launch_dimensions_are_rejected[inf-wheel_radius] PASSED [ 91%]
+src/course_description/test/test_model.py::test_default_dimensions_match_course_kit PASSED [ 95%]
+src/course_description/test/test_model.py::test_check_urdf_accepts_expanded_description PASSED [100%]
+
+============================== 24 passed in 0.21s ==============================
+
+[exit 0]
+
+$ colcon test --packages-select course_description --event-handlers console_direct+ --return-code-on-test-failure
+Starting >>> course_description
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/course_description/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/course_description
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 24 items
+
+test/test_model.py ........................                              [100%]
+
+- generated xml file: /home/alexai/robotics_ws/build/course_description/pytest.xml -
+============================== 24 passed in 0.22s ==============================
+Finished <<< course_description [1.06s]
+
+Summary: 1 package finished [1.23s]
+
+[exit 0]
+
+$ colcon test-result --verbose --test-result-base build/course_description
+Summary: 24 tests, 0 errors, 0 failures, 0 skipped
+
+[exit 0]
+
+$ colcon test --event-handlers console_direct+ --return-code-on-test-failure
+Starting >>> patrol
+Starting >>> course_description
+Starting >>> turtle_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/patrol/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/patrol
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 49 items
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/course_description/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/course_description
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 24 items
+
+test/test_model.py ........................                              [100%]
+
+- generated xml file: /home/alexai/robotics_ws/build/course_description/pytest.xml -
+============================== 24 passed in 0.29s ==============================
+test/test_node_parameters.py .............                               [ 26%]
+test/test_parameters.py ................................                 [ 91%]
+test/test_patrol.py ....                                                 [100%]
+
+----- generated xml file: /home/alexai/robotics_ws/build/patrol/pytest.xml -----
+============================== 49 passed in 0.84s ==============================
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/turtle_bringup/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/turtle_bringup
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 3 items
+
+test/test_copyright.py s                                                 [ 33%]
+Finished <<< course_description [1.63s]
+test/test_flake8.py .                                                    [ 66%]
+test/test_pep257.py .                                                    [100%]
+
+- generated xml file: /home/alexai/robotics_ws/build/turtle_bringup/pytest.xml -
+========================= 2 passed, 1 skipped in 0.36s =========================
+Finished <<< patrol [1.95s]
+Starting >>> course_bringup
+Finished <<< turtle_bringup [2.23s]
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/course_bringup/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/course_bringup
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 10 items
+
+test/test_pose_delivery.py ...                                           [ 30%]
+test/test_qos.py .......                                                 [100%]
+
+- generated xml file: /home/alexai/robotics_ws/build/course_bringup/pytest.xml -
+============================== 10 passed in 0.62s ==============================
+Finished <<< course_bringup [1.57s]
+
+Summary: 4 packages finished [3.70s]
+
+[exit 0]
+
+$ colcon test-result --verbose
+Summary: 86 tests, 0 errors, 0 failures, 1 skipped
+
+[exit 0]
+
+
+$ python3 .course-kit/v1/tools/check_practice.py PR06 --submission .
+PR06: контракт evidence выполнен
+
+[exit 0]

@@ -1,0 +1,13 @@
+diff --git a/src/course_description/urdf/vehicle.urdf.xacro b/src/course_description/urdf/vehicle.urdf.xacro
+index 8ed52d4..668cdfb 100644
+--- a/src/course_description/urdf/vehicle.urdf.xacro
++++ b/src/course_description/urdf/vehicle.urdf.xacro
+@@ -124,7 +124,7 @@
+     </inertial>
+   </link>
+   <joint name="lidar_joint" type="fixed">
+-    <parent link="base_link"/><child link="lidar_link"/>
++    <parent link="camera_link"/><child link="lidar_link"/>
+     <origin xyz="${sensor_x} 0 ${sensor_z}" rpy="0 0 0"/>
+   </joint>
+   <xacro:box_link name="imu_link" x="0.04" y="0.03" z="0.015"

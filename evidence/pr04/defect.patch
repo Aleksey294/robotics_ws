@@ -1,0 +1,12 @@
+diff --git a/src/patrol/patrol/parameters.py b/src/patrol/patrol/parameters.py
+index b40ba82..35c59c2 100644
+--- a/src/patrol/patrol/parameters.py
++++ b/src/patrol/patrol/parameters.py
+@@ -8,7 +8,6 @@ def validate_parameters(linear_speed, turn_rate, publish_hz):
+     limits = (
+         ('linear_speed', linear_speed, 0.0, 1.0),
+         ('turn_rate', turn_rate, -1.0, 1.0),
+-        ('publish_hz', publish_hz, 1.0, 30.0),
+     )
+     for name, value, lower, upper in limits:
+         if isinstance(value, bool) or not isinstance(value, (int, float)):

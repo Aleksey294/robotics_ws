@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR06",
+  "commit": "19c9b472c1f74c9d77c73b37dd5e153e34e31c04",
+  "course_kit": {
+    "version": "v1-w12",
+    "archive_sha256": "525e86f818ffed166e7f7b67cc87fdd3f3ea840d13aa90e76bde9fda0f3c9c5a",
+    "archive_url": "https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w12-525e86f818ff.tar.gz"
+  },
+  "commands": [
+    "source /opt/ros/jazzy/setup.bash",
+    "source install/setup.bash",
+    "colcon build --symlink-install",
+    "python3 -m pytest src/course_description/test -v",
+    "colcon test --packages-select course_description --event-handlers console_direct+ --return-code-on-test-failure",
+    "colcon test-result --verbose --test-result-base build/course_description",
+    "colcon test --event-handlers console_direct+ --return-code-on-test-failure",
+    "colcon test-result --verbose",
+    "ros2 node list --no-daemon --spin-time 2",
+    "xacro /home/alexai/robotics_ws/src/course_description/urdf/vehicle.urdf.xacro -o /home/alexai/robotics_ws/evidence/pr06/vehicle.urdf",
+    "check_urdf /home/alexai/robotics_ws/evidence/pr06/vehicle.urdf",
+    "ros2 launch course_description description.launch.py rviz:=false model:=/home/alexai/robotics_ws/src/course_description/urdf/vehicle.urdf.xacro",
+    "timeout 5s ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState '{header: auto, name: [front_left_steering_joint, front_right_steering_joint, front_left_wheel_joint, front_right_wheel_joint, rear_left_wheel_joint, rear_right_wheel_joint], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'",
+    "timeout 8s ros2 topic echo /tf tf2_msgs/msg/TFMessage --once --no-daemon --spin-time 0.1 --qos-durability volatile --qos-reliability reliable",
+    "ros2 run tf2_tools view_frames --wait-time 3 --output /home/alexai/robotics_ws/evidence/pr06/frames",
+    "ros2 run rviz2 rviz2 -d /home/alexai/robotics_ws/install/course_description/share/course_description/rviz/vehicle.rviz --display-title-format PR06-RViz",
+    "xwininfo -name PR06-RViz",
+    "ros2 topic info /tf_static --verbose --no-daemon --spin-time 2",
+    "ros2 topic info /tf --verbose --no-daemon --spin-time 2",
+    "timeout 4s ros2 topic echo /tf_static tf2_msgs/msg/TFMessage --once --no-daemon --spin-time 0.1 --qos-durability transient_local --qos-reliability reliable",
+    "timeout 4s ros2 topic echo /tf_static tf2_msgs/msg/TFMessage --once --no-daemon --spin-time 0.1 --qos-durability volatile --qos-reliability reliable",
+    "PR06_MODEL=/tmp/pr06-parent-defect-source/src/course_description/urdf/vehicle.urdf.xacro python3 -m pytest src/course_description/test/test_model.py::test_lidar_parent -q",
+    "PR06_MODEL=/home/alexai/robotics_ws/src/course_description/urdf/vehicle.urdf.xacro python3 -m pytest src/course_description/test/test_model.py::test_lidar_parent -q",
+    "ROS_DOMAIN_ID=201 python3 tools/record_pr06.py --output evidence/pr06 --rviz",
+    "ROS_DOMAIN_ID=202 python3 tools/record_pr06.py --model /tmp/pr06-parent-defect-source/src/course_description/urdf/vehicle.urdf.xacro --expect-broken --output evidence/pr06/defect",
+    "python3 .course-kit/v1/tools/check_practice.py PR06 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "Minimal body/lidar launch and real tf2_echo return [0.280, 0.000, 0.380]",
+      "status": "passed"
+    },
+    {
+      "name": "Xacro expansion and check_urdf pass for the complete 12-link, 11-joint model",
+      "status": "passed"
+    },
+    {
+      "name": "24 model tests: tree, expected parent and pose, optical axes, finite geometry, inertia, dimension overrides and SDF consistency",
+      "status": "passed"
+    },
+    {
+      "name": "course_description colcon test: 24 tests, 0 errors, 0 failures",
+      "status": "passed"
+    },
+    {
+      "name": "Full workspace colcon test: 86 tests, 0 errors, 0 failures, 1 skipped",
+      "status": "passed"
+    },
+    {
+      "name": "Existing turtle_bringup copyright test disabled by its original decorator",
+      "status": "skipped"
+    },
+    {
+      "name": "/tf_static has exactly one RELIABLE/TRANSIENT_LOCAL publisher; /tf is VOLATILE",
+      "status": "passed"
+    },
+    {
+      "name": "Late transient_local echo returns all 5 fixed transforms with exit 0; late volatile echo receives none and exits 124",
+      "status": "passed"
+    },
+    {
+      "name": "Manual joint_states creates all 6 movable transforms; view_frames exports a connected tree",
+      "status": "passed"
+    },
+    {
+      "name": "RViz opened with base_link Fixed Frame and RobotModel/Global Status Ok; actual window saved as rviz.png",
+      "status": "passed"
+    },
+    {
+      "name": "Incorrect lidar parent: check_urdf still passes, real tf2_echo measures [0.560, 0.000, 0.760]",
+      "status": "passed"
+    },
+    {
+      "name": "Identical test_lidar_parent fails on the defect and passes with the correct parent",
+      "status": "passed"
+    }
+  ],
+  "model": {
+    "wheelbase_m": 0.8,
+    "track_m": 0.62,
+    "wheel_radius_m": 0.12,
+    "links": 12,
+    "joints": 11,
+    "fixed_joints": 5,
+    "movable_joints": 6,
+    "root_frame": "base_footprint",
+    "rviz_fixed_frame": "base_link",
+    "transform_owner": "/robot_state_publisher",
+    "joint_states_source": "ros2 topic pub; no joint_state_publisher package",
+    "gazebo_plugins_copied": false
+  },
+  "defect": {
+    "branch": "lab_6_defect",
+    "commit": "166efc9dac2de50aff02e4bafb8b1384e49af4f0",
+    "branch_published": false,
+    "reproduction_patch": "evidence/pr06/defect.patch",
+    "reproducer": "Change only lidar_joint parent from base_link to camera_link while retaining the 0.28 0 0.38 offset. check_urdf passes; tf2_echo base_link lidar_link reports [0.560, 0.000, 0.760]. test_lidar_parent fails. See defect/model-check.txt and regression-before.txt.",
+    "root_cause": "The offset intended relative to base_link is interpreted in camera_link. Composing the camera and lidar offsets doubles x and z. The tree is structurally valid, so only semantic geometry and expected-parent checks detect this error.",
+    "proof_after": "The main branch keeps lidar_joint directly under base_link. The same parent test passes, real tf2_echo returns [0.280, 0.000, 0.380], all 24 model tests pass, and RViz shows the complete model. See model-check.txt, regression-after.txt, frames.pdf and rviz.png."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 0
+  },
+  "ai_used": true
+}

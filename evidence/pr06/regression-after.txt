@@ -1,0 +1,5 @@
+$ PR06_MODEL=/home/alexai/robotics_ws/src/course_description/urdf/vehicle.urdf.xacro python3 -m pytest src/course_description/test/test_model.py::test_lidar_parent -q
+.                                                                        [100%]
+1 passed in 0.18s
+
+[exit 0]

@@ -1,0 +1,116 @@
+$ colcon build --symlink-install --packages-select turtle_bringup patrol
+Starting >>> patrol
+Starting >>> turtle_bringup
+Finished <<< patrol [1.88s]
+Finished <<< turtle_bringup [1.88s]
+
+Summary: 2 packages finished [2.04s]
+
+[exit 0]
+
+$ python3 -m pytest src/patrol/test -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/alexai/robotics_ws/src/patrol
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collecting ... collected 49 items
+
+src/patrol/test/test_node_parameters.py::test_frequency_replaces_one_timer PASSED [  2%]
+src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0] PASSED [  4%]
+src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[-1.0] PASSED [  6%]
+src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[nan] PASSED [  8%]
+src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[inf] PASSED [ 10%]
+src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[31.0] PASSED [ 12%]
+src/patrol/test/test_node_parameters.py::test_speed_update_keeps_timer PASSED [ 14%]
+src/patrol/test/test_node_parameters.py::test_invalid_atomic_batch_has_no_partial_effect PASSED [ 16%]
+src/patrol/test/test_node_parameters.py::test_later_validator_can_reject_without_side_effects PASSED [ 18%]
+src/patrol/test/test_node_parameters.py::test_invalid_startup_override[linear_speed--0.1] PASSED [ 20%]
+src/patrol/test/test_node_parameters.py::test_invalid_startup_override[turn_rate-1.1] PASSED [ 22%]
+src/patrol/test/test_node_parameters.py::test_invalid_startup_override[publish_hz-0.0] PASSED [ 24%]
+src/patrol/test/test_node_parameters.py::test_valid_startup_overrides PASSED [ 26%]
+src/patrol/test/test_parameters.py::test_valid_frequency[10.0] PASSED    [ 28%]
+src/patrol/test/test_parameters.py::test_valid_frequency[5.0] PASSED     [ 30%]
+src/patrol/test/test_parameters.py::test_valid_frequency[1.0] PASSED     [ 32%]
+src/patrol/test/test_parameters.py::test_valid_frequency[30.0] PASSED    [ 34%]
+src/patrol/test/test_parameters.py::test_inclusive_bounds[linear_speed-0.0-1.0] PASSED [ 36%]
+src/patrol/test/test_parameters.py::test_inclusive_bounds[turn_rate--1.0-1.0] PASSED [ 38%]
+src/patrol/test/test_parameters.py::test_inclusive_bounds[publish_hz-1.0-30.0] PASSED [ 40%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[publish_hz-0.0] PASSED [ 42%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[publish_hz--1.0] PASSED [ 44%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[publish_hz-30.1] PASSED [ 46%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[linear_speed--0.1] PASSED [ 48%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[linear_speed-1.1] PASSED [ 51%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[turn_rate--1.1] PASSED [ 53%]
+src/patrol/test/test_parameters.py::test_reject_out_of_range[turn_rate-1.1] PASSED [ 55%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[nan-linear_speed] PASSED [ 57%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[nan-turn_rate] PASSED [ 59%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[nan-publish_hz] PASSED [ 61%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[inf-linear_speed] PASSED [ 63%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[inf-turn_rate] PASSED [ 65%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[inf-publish_hz] PASSED [ 67%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[-inf-linear_speed] PASSED [ 69%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[-inf-turn_rate] PASSED [ 71%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[-inf-publish_hz] PASSED [ 73%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[True-linear_speed] PASSED [ 75%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[True-turn_rate] PASSED [ 77%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[True-publish_hz] PASSED [ 79%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[5.0-linear_speed] PASSED [ 81%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[5.0-turn_rate] PASSED [ 83%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[5.0-publish_hz] PASSED [ 85%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[None-linear_speed] PASSED [ 87%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[None-turn_rate] PASSED [ 89%]
+src/patrol/test/test_parameters.py::test_reject_nonfinite_and_nonnumeric[None-publish_hz] PASSED [ 91%]
+src/patrol/test/test_patrol.py::test_command_is_zero_without_pose PASSED [ 93%]
+src/patrol/test/test_patrol.py::test_command_moves_after_pose_arrives PASSED [ 95%]
+src/patrol/test/test_patrol.py::test_command_uses_accepted_speeds PASSED [ 97%]
+src/patrol/test/test_patrol.py::test_nondefault_speeds_still_require_pose PASSED [100%]
+
+============================== 49 passed in 0.44s ==============================
+
+[exit 0]
+
+$ colcon test --event-handlers console_direct+ --return-code-on-test-failure
+Starting >>> patrol
+Starting >>> turtle_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/patrol/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/patrol
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 49 items
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/alexai/robotics_ws/build/turtle_bringup/.pytest_cache
+rootdir: /home/alexai/robotics_ws/src/turtle_bringup
+plugins: ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-lint-0.17.5, launch-testing-3.4.11, ament-flake8-0.17.5, colcon-core-0.21.3, cov-4.1.0
+collected 3 items
+
+test/test_copyright.py s                                                 [ 33%]
+test/test_node_parameters.py .............                               [ 26%]
+test/test_parameters.py ................................                 [ 91%]
+test/test_patrol.py ....                                                 [100%]
+
+----- generated xml file: /home/alexai/robotics_ws/build/patrol/pytest.xml -----
+============================== 49 passed in 0.44s ==============================
+test/test_flake8.py .                                                    [ 66%]
+test/test_pep257.py .                                                    [100%]
+
+- generated xml file: /home/alexai/robotics_ws/build/turtle_bringup/pytest.xml -
+========================= 2 passed, 1 skipped in 0.26s =========================
+Finished <<< turtle_bringup [1.17s]
+Finished <<< patrol [1.28s]
+
+Summary: 2 packages finished [1.43s]
+
+[exit 0]
+
+$ colcon test-result --verbose
+Summary: 52 tests, 0 errors, 0 failures, 1 skipped
+
+[exit 0]
+
+$ python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
+PR04: контракт evidence выполнен
+[exit 0]

@@ -1,0 +1,35 @@
+[INFO] [launch]: All log files can be found below /tmp/pr05-ros-logs/2026-11-27-12-00-47-007582-alexai-ROG-Strix-G513RM-G513RM-16821
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: Patrol namespace: robot_a; record: false
+[INFO] [turtlesim_node-1]: process started with pid [16827]
+[INFO] [patrol-2]: process started with pid [16828]
+[INFO] [pose_relay-3]: process started with pid [16829]
+[INFO] [pose_subscriber-4]: process started with pid [16830]
+[turtlesim_node-1] [INFO] [1795755647.136995925] [turtlesim]: Starting turtlesim with node name /turtlesim
+[turtlesim_node-1] [INFO] [1795755647.142521467] [turtlesim]: Spawning turtle [turtle1] at x=[5.544445], y=[5.544445], theta=[0.000000]
+[pose_subscriber-4] [WARN] [1795755647.490860062] [robot_a.pose_subscriber]: New publisher discovered on topic 'sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+[pose_relay-3] [WARN] [1795755647.490951084] [robot_a.pose_relay]: New subscription discovered on topic 'sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY
+[pose_subscriber-4] [INFO] [1795755648.378690498] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755649.378401920] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755650.378369694] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755651.378547514] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755652.378460654] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755653.378347022] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755654.378660223] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755655.378108084] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755656.378430791] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755657.378212459] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_relay-3] [WARN] [1795755658.020219925] [robot_a.pose_relay]: New subscription discovered on topic 'sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY
+[pose_subscriber-4] [INFO] [1795755658.378591170] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755659.378488913] [robot_a.pose_subscriber]: reliability=reliable received=0
+[pose_subscriber-4] [INFO] [1795755660.378512504] [robot_a.pose_subscriber]: reliability=reliable received=0
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pose_subscriber-4]: sending signal 'SIGINT' to process[pose_subscriber-4]
+[INFO] [pose_relay-3]: sending signal 'SIGINT' to process[pose_relay-3]
+[INFO] [patrol-2]: sending signal 'SIGINT' to process[patrol-2]
+[INFO] [turtlesim_node-1]: sending signal 'SIGINT' to process[turtlesim_node-1]
+[turtlesim_node-1] [INFO] [1795755660.592584316] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [turtlesim_node-1]: process has finished cleanly [pid 16827]
+[INFO] [pose_subscriber-4]: process has finished cleanly [pid 16830]
+[INFO] [pose_relay-3]: process has finished cleanly [pid 16829]
+[INFO] [patrol-2]: process has finished cleanly [pid 16828]
