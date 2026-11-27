@@ -1,0 +1,186 @@
+$ ros2 node list --no-daemon --spin-time 2
+
+[exit 0]
+
+$ xacro /tmp/pr06-parent-defect-source/src/course_description/urdf/vehicle.urdf.xacro -o /home/alexai/robotics_ws/evidence/pr06/defect/vehicle.urdf
+
+[exit 0]
+
+$ check_urdf /home/alexai/robotics_ws/evidence/pr06/defect/vehicle.urdf
+robot name is: course_ackermann
+---------- Successfully Parsed XML ---------------
+root Link: base_footprint has 1 child(ren)
+    child(1):  base_link
+        child(1):  camera_link
+            child(1):  camera_optical_frame
+            child(2):  lidar_link
+        child(2):  front_left_knuckle
+            child(1):  front_left_wheel
+        child(3):  front_right_knuckle
+            child(1):  front_right_wheel
+        child(4):  imu_link
+        child(5):  rear_left_wheel
+        child(6):  rear_right_wheel
+[exit 0]
+
+$ ros2 launch course_description description.launch.py rviz:=false model:=/tmp/pr06-parent-defect-source/src/course_description/urdf/vehicle.urdf.xacro
+(output: state-publisher.log)
+[exit running]
+
+$ timeout 5s ros2 run tf2_ros tf2_echo base_link lidar_link
+[INFO] [1795757130.348473584] [tf2_echo]: Waiting for transform base_link ->  lidar_link: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+At time 0.0
+- Translation: [0.560, 0.000, 0.760]
+- Rotation: in Quaternion (xyzw) [0.000, 0.000, 0.000, 1.000]
+- Rotation: in RPY (radian) [0.000, -0.000, 0.000]
+- Rotation: in RPY (degree) [0.000, -0.000, 0.000]
+- Matrix:
+  1.000  0.000  0.000  0.560
+  0.000  1.000  0.000  0.000
+  0.000  0.000  1.000  0.760
+  0.000  0.000  0.000  1.000
+At time 0.0
+- Translation: [0.560, 0.000, 0.760]
+- Rotation: in Quaternion (xyzw) [0.000, 0.000, 0.000, 1.000]
+- Rotation: in RPY (radian) [0.000, -0.000, 0.000]
+- Rotation: in RPY (degree) [0.000, -0.000, 0.000]
+- Matrix:
+  1.000  0.000  0.000  0.560
+  0.000  1.000  0.000  0.000
+  0.000  0.000  1.000  0.760
+  0.000  0.000  0.000  1.000
+At time 0.0
+- Translation: [0.560, 0.000, 0.760]
+- Rotation: in Quaternion (xyzw) [0.000, 0.000, 0.000, 1.000]
+- Rotation: in RPY (radian) [0.000, -0.000, 0.000]
+- Rotation: in RPY (degree) [0.000, -0.000, 0.000]
+- Matrix:
+  1.000  0.000  0.000  0.560
+  0.000  1.000  0.000  0.000
+  0.000  0.000  1.000  0.760
+  0.000  0.000  0.000  1.000
+At time 0.0
+- Translation: [0.560, 0.000, 0.760]
+- Rotation: in Quaternion (xyzw) [0.000, 0.000, 0.000, 1.000]
+- Rotation: in RPY (radian) [0.000, -0.000, 0.000]
+- Rotation: in RPY (degree) [0.000, -0.000, 0.000]
+- Matrix:
+  1.000  0.000  0.000  0.560
+  0.000  1.000  0.000  0.000
+  0.000  0.000  1.000  0.760
+  0.000  0.000  0.000  1.000
+[INFO] [1795757135.057544210] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[exit 124]
+
+$ ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState '{header: auto, name: [front_left_steering_joint, front_right_steering_joint, front_left_wheel_joint, front_right_wheel_joint, rear_left_wheel_joint, rear_right_wheel_joint], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'
+(output: joint-states.log)
+[exit running]
+
+$ timeout 8s ros2 topic echo /tf tf2_msgs/msg/TFMessage --once --no-daemon --spin-time 0.1 --qos-durability volatile --qos-reliability reliable
+transforms:
+- header:
+    stamp:
+      sec: 1795757136
+      nanosec: 361088227
+    frame_id: base_link
+  child_frame_id: front_left_knuckle
+  transform:
+    translation:
+      x: 0.4
+      y: 0.31
+      z: 0.0
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1795757136
+      nanosec: 361088227
+    frame_id: front_left_knuckle
+  child_frame_id: front_left_wheel
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1795757136
+      nanosec: 361088227
+    frame_id: base_link
+  child_frame_id: front_right_knuckle
+  transform:
+    translation:
+      x: 0.4
+      y: -0.31
+      z: 0.0
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1795757136
+      nanosec: 361088227
+    frame_id: front_right_knuckle
+  child_frame_id: front_right_wheel
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1795757136
+      nanosec: 361088227
+    frame_id: base_link
+  child_frame_id: rear_left_wheel
+  transform:
+    translation:
+      x: -0.4
+      y: 0.31
+      z: 0.0
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1795757136
+      nanosec: 361088227
+    frame_id: base_link
+  child_frame_id: rear_right_wheel
+  transform:
+    translation:
+      x: -0.4
+      y: -0.31
+      z: 0.0
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+---
+[exit 0]
+
+$ ros2 run tf2_tools view_frames --wait-time 3 --output /home/alexai/robotics_ws/evidence/pr06/defect/frames
+[INFO] [1795757137.470548958] [view_frames]: Listening to tf data for 3.0 seconds...
+[INFO] [1795757140.565491591] [view_frames]: Generating graph...
+[INFO] [1795757140.568793830] [view_frames]: Result:tf2_msgs.srv.FrameGraph_Response(frame_yaml="front_left_knuckle: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10.322\n  most_recent_transform: 1795757140.562123\n  oldest_transform: 1795757137.462039\n  buffer_length: 3.100\nbase_link: \n  parent: 'base_footprint'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\nfront_left_wheel: \n  parent: 'front_left_knuckle'\n  broadcaster: 'default_authority'\n  rate: 10.322\n  most_recent_transform: 1795757140.562123\n  oldest_transform: 1795757137.462039\n  buffer_length: 3.100\nfront_right_knuckle: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10.322\n  most_recent_transform: 1795757140.562123\n  oldest_transform: 1795757137.462039\n  buffer_length: 3.100\nfront_right_wheel: \n  parent: 'front_right_knuckle'\n  broadcaster: 'default_authority'\n  rate: 10.322\n  most_recent_transform: 1795757140.562123\n  oldest_transform: 1795757137.462039\n  buffer_length: 3.100\nrear_left_wheel: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10.322\n  most_recent_transform: 1795757140.562123\n  oldest_transform: 1795757137.462039\n  buffer_length: 3.100\nrear_right_wheel: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10.322\n  most_recent_transform: 1795757140.562123\n  oldest_transform: 1795757137.462039\n  buffer_length: 3.100\ncamera_link: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera_optical_frame: \n  parent: 'camera_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\nimu_link: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\nlidar_link: \n  parent: 'camera_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\n")
+[INFO] [1795757140.573502568] [view_frames]: Exporting graph in /home/alexai/robotics_ws/evidence/pr06/defect/frames.pdf file...
+[exit 0]
+

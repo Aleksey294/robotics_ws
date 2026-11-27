@@ -1,0 +1,8 @@
+[INFO] [launch]: All log files can be found below /tmp/pr06-ros-logs/2026-11-27-12-18-49-292536-alexai-ROG-Strix-G513RM-G513RM-18757
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [robot_state_publisher-1]: process started with pid [18780]
+[robot_state_publisher-1] [INFO] [1795756729.470413578] [robot_state_publisher]: Robot initialized
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [robot_state_publisher-1]: sending signal 'SIGINT' to process[robot_state_publisher-1]
+[robot_state_publisher-1] [INFO] [1795756734.061657030] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 18780]
