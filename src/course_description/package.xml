@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>course_description</name>
+  <version>0.0.0</version>
+  <description>Parameterized Ackermann URDF and tf2 visualization.</description>
+  <maintainer email="zavrazin2006@mail.ru">AlexAI</maintainer>
+  <license>Apache-2.0</license>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf2_tools</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <test_depend>python3-numpy</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>urdfdom</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

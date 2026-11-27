@@ -1,148 +1,148 @@
-# ПР05. Launch, QoS и повтор записи
+# ПР06. Модель робота, tf2 и QoS преобразований
 
-Ветка `lab_5` содержит пакет `course_bringup`: launch для `patrol`,
-`pose_relay`, подписчика с выбором QoS и записи сенсорного потока в MCAP.
+Ветка `lab_6` содержит пакет `course_description`: параметризованный
+Ackermann-робот, запуск `robot_state_publisher`, конфигурацию RViz и проверки
+геометрии, дерева и durability преобразований.
 
-## Сборка
-
-Из корня репозитория:
+## Сборка и запуск
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 colcon build --symlink-install
 source install/setup.bash
-export ROS_DOMAIN_ID=196
-ros2 launch course_bringup patrol.launch.py --show-args
+export ROS_DOMAIN_ID=201
+xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf
+check_urdf /tmp/vehicle.urdf
+ros2 launch course_description description.launch.py
 ```
 
-В каждом терминале подключите ROS, workspace и тот же свободный домен.
+RViz открывается с Fixed Frame=`base_link`. У RobotModel должен быть Status: Ok.
+Описание модели читается из `/robot_description` с transient local.
 
-| Аргумент | По умолчанию | Назначение |
+| Аргумент | Значение по умолчанию | Назначение |
 | --- | --- | --- |
-| `namespace` | `robot_a` | Пространство имён patrol, relay и подписчика |
-| `record` | `false` | При `true` запускается recorder через `IfCondition` |
-| `bag_dir` | `evidence/pr05/bag` | Новый каталог MCAP |
-| `subscriber_reliability` | `best_effort` | Профиль подписчика: `best_effort` или `reliable` |
+| `wheelbase` | `0.8` | Расстояние между осями, м |
+| `track` | `0.62` | Колея, м |
+| `wheel_radius` | `0.12` | Радиус колёс, м |
+| `model` | установленный `vehicle.urdf.xacro` | Файл описания |
+| `rviz` | `true` | Запуск RViz; `false` для CLI-опыта |
 
-Один turtlesim запускается глобально. Внутри нод имена относительные.
-Launch переназначает вход patrol и relay на `/turtle1/pose`, выход patrol —
-на `/turtle1/cmd_vel`. Relay пересылает позу без изменений в
-`/robot_a/sensor_pose` с `best_effort`. Подписчик раз в секунду выводит
-число полученных сообщений. Профиль выбирается при запуске; для его изменения
-перезапустите launch с другим аргументом. Используется реальное время.
-
-## Несовместимый QoS
-
-В первом терминале:
+Размеры должны быть конечными положительными числами. Например:
 
 ```bash
-ros2 launch course_bringup patrol.launch.py \
-  namespace:=robot_a subscriber_reliability:=reliable record:=false
+ros2 launch course_description description.launch.py \
+  wheelbase:=1.0 track:=0.7 wheel_radius:=0.15
 ```
 
-Во втором:
+Имена и оси: x вперёд, y влево, z вверх; углы в радианах, размеры в метрах,
+массы в килограммах. У камеры есть отдельный optical frame:
+z вперёд, x вправо, y вниз. Пустой `base_footprint` задаёт уровень земли,
+а `base_link` расположен на высоте радиуса колеса.
 
-```bash
-ros2 node list --no-daemon
-ros2 topic list
-ros2 node info /robot_a/patrol
-ros2 topic info /robot_a/sensor_pose --verbose
-timeout 3s ros2 topic echo /robot_a/sensor_pose \
-  --qos-reliability reliable --once
-```
+Корпус, колёса и сенсоры имеют отдельные `visual`, `collision` и допустимую
+инерцию. Передние кулаки поворачиваются вокруг z, колёса вращаются вокруг y.
+Поворот цилиндров на 90° находится в геометрии, оси сочленений остаются
+в согласованной системе координат. Плагинов Gazebo в URDF нет.
 
-Топик виден, но команда завершается с кодом `124` и без сообщения позы.
-В диагностике у relay указан `BEST_EFFORT`, у подписчика — `RELIABLE`;
-в логе подписчика счётчик остаётся нулевым. Recorder при `record:=false`
-не запускается. Причина — несовместимость запрашиваемой и предлагаемой
-надёжности: best effort-издатель не обслуживает reliable-подписчика.
+## Фиксированные и подвижные звенья
 
-## Исправление и одна запись
-
-Остановите предыдущий launch через Ctrl+C и запустите:
-
-```bash
-ros2 launch course_bringup patrol.launch.py \
-  namespace:=robot_a subscriber_reliability:=best_effort \
-  record:=true bag_dir:=/tmp/pr05-my-bag
-```
-
-Выберите новый `bag_dir`: rosbag2 не перезаписывает существующий каталог.
-Recorder пишет только `/robot_a/sensor_pose` в MCAP. Во втором терминале:
-
-```bash
-timeout 3s ros2 topic echo /robot_a/sensor_pose \
-  --qos-reliability best_effort --once
-ros2 topic info /robot_a/sensor_pose --verbose
-```
-
-Теперь приходит поза и растёт счётчик подписчика. Через несколько секунд
-остановите launch через Ctrl+C: recorder завершит запись и сохранит metadata.
-Все процессы launch должны завершиться; перед replay живых издателей
-`sensor_pose` оставаться не должно.
-
-## Повтор того же MCAP
-
-В первом терминале:
-
-```bash
-ros2 bag info /tmp/pr05-my-bag
-ros2 bag play /tmp/pr05-my-bag --loop \
-  --qos-profile-overrides-path config/qos-overrides.yaml
-```
-
-Во втором последовательно проверьте оба профиля:
-
-```bash
-ros2 topic info /robot_a/sensor_pose --verbose
-timeout 3s ros2 topic echo /robot_a/sensor_pose \
-  --qos-reliability reliable --once
-timeout 3s ros2 topic echo /robot_a/sensor_pose \
-  --qos-reliability best_effort --once
-```
-
-Первая команда echo снова завершается по timeout, вторая получает сообщение.
-Единственный издатель при replay — `rosbag2_player`; живой relay остановлен.
-Оба подписчика проверяются на одной записи. `--loop` даёт время выполнить
-обе команды; завершите player через Ctrl+C.
-
-В `config/qos-overrides.yaml` задан `best_effort`, `keep_last`, глубина 10
-для `/robot_a/sensor_pose`. При выборе другого namespace обновите имя топика
-в override перед replay.
-
-## Проверки и материалы сдачи
+Камера, лидар, IMU и optical frame доступны сразу в `/tf_static`.
+Колёса и кулаки появляются в `/tf` после получения `joint_states`.
+Для отображения всех колёс можно запустить во втором терминале:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
-ROS_DOMAIN_ID=195 python3 -m pytest src/patrol/test src/course_bringup/test
-ROS_DOMAIN_ID=195 colcon test --event-handlers console_direct+ --return-code-on-test-failure
-colcon test-result --verbose
-python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
+export ROS_DOMAIN_ID=201
+ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState \
+  '{header: auto, name: [front_left_steering_joint, front_right_steering_joint, front_left_wheel_joint, front_right_wheel_joint, rear_left_wheel_joint, rear_right_wheel_joint], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'
 ```
 
-Тесты проверяют параметры patrol, совместимость профилей, реальные callbacks DDS,
-сохранение содержимого сообщения при relay, namespace и remap.
+Это обычная публикация состояний; все преобразования по-прежнему публикует
+один `robot_state_publisher`. Пакет `joint_state_publisher` не используется.
 
-Для полного повторения опыта в свободном домене:
+## Поздний подписчик и durability
+
+Пока launch работает, в другом терминале выполните:
 
 ```bash
-ROS_DOMAIN_ID=196 python3 tools/record_pr05.py --output /tmp/pr05-new-experiment
+ros2 topic info /tf_static --verbose --no-daemon --spin-time 2
+ros2 topic info /tf --verbose --no-daemon --spin-time 2
+timeout 4 ros2 topic echo /tf_static tf2_msgs/msg/TFMessage --once \
+  --qos-durability transient_local --qos-reliability reliable
+timeout 4 ros2 topic echo /tf_static tf2_msgs/msg/TFMessage --once \
+  --qos-durability volatile --qos-reliability reliable
 ```
 
-Сценарий запускает launch без записи и с записью, проверяет несовместимый
-и исправленный профиль, сохраняет MCAP, затем повторяет оба профиля на этом же
-файле. Окно turtlesim отключено через `QT_QPA_PLATFORM=offscreen`.
-Существующие записи не перезаписываются. Проверяется завершение процессов
-и неизменность SHA-256 MCAP после replay.
+У `/tf_static` профиль reliable/transient_local. Первый поздний подписчик
+получает сохранённые фиксированные преобразования и завершается с кодом 0.
+Второй совместим с издателем, но не получает историю: новых статических
+публикаций нет, поэтому timeout завершается с кодом 124.
+У `/tf` durability volatile: меняющиеся преобразования приходят после
+новых `joint_states`.
 
-Материалы: [до исправления](evidence/pr05/qos-before.txt),
-[после исправления и replay](evidence/pr05/qos-after.txt),
-[metadata](evidence/pr05/bag-metadata.yaml), [MCAP](evidence/pr05/bag/bag_0.mcap),
-[тесты](evidence/pr05/tests.txt), [отчёт](evidence/pr05/report.json).
+Проверка одной связи и полного дерева:
 
-CI собирает три пакета, запускает тесты, повторяет live/replay-опыт в новом
-каталоге и проверяет отчёт официальным checker. Используется зафиксированный
-course kit `v1-w12` с манифестом ПР05; URL и SHA-256 указаны в workflow.
-Коммит реализации и следующий коммит evidence разделены; `report.commit`
-указывает на реализацию.
+```bash
+ros2 run tf2_ros tf2_echo base_link lidar_link
+ros2 run tf2_tools view_frames
+```
+
+Для лидара ожидается `[0.280, 0.000, 0.380]` м относительно `base_link`.
+Завершите непрерывный `tf2_echo` через Ctrl+C. `map` и `odom` здесь
+не публикуются: выбор одного из них в качестве Fixed Frame даст ожидаемую
+ошибку. При диагностике сначала прочитайте Global Status и статус Display,
+затем проверяйте связь и дерево; offset вручную не меняйте.
+Перед новым запуском остановите прежний launch.
+
+## Проверки и воспроизведение дефекта
+
+```bash
+python3 -m pytest src/course_description/test
+colcon test --packages-select course_description --event-handlers console_direct+
+colcon test-result --verbose --test-result-base build/course_description
+python3 .course-kit/v1/tools/check_practice.py PR06 --submission .
+```
+
+Тесты проверяют связность и отсутствие циклов, единственного parent,
+положение сенсоров, единицы и размеры, ориентацию optical frame,
+положительность и физическую допустимость инерции, изменение параметров
+и согласованность размеров с моделью из kit.
+
+В локальной ветке `lab_6_defect` родитель `lidar_link` заменён на
+`camera_link`, offset сохранён. Дерево остаётся допустимым для `check_urdf`,
+но позиция лидара становится `[0.560, 0.000, 0.760]` м.
+Тест ожидаемого parent падает; с правильной связью тот же тест проходит.
+Для повторения без отдельной ветки:
+
+```bash
+git worktree add --detach /tmp/pr06-parent-defect HEAD
+git -C /tmp/pr06-parent-defect apply "$PWD/evidence/pr06/defect.patch"
+PR06_MODEL=/tmp/pr06-parent-defect/src/course_description/urdf/vehicle.urdf.xacro \
+  python3 -m pytest src/course_description/test/test_model.py::test_lidar_parent -q
+ROS_DOMAIN_ID=202 python3 tools/record_pr06.py \
+  --model /tmp/pr06-parent-defect/src/course_description/urdf/vehicle.urdf.xacro \
+  --expect-broken --output /tmp/pr06-broken-check
+python3 -m pytest src/course_description/test/test_model.py::test_lidar_parent -q
+```
+
+Полный исправный опыт с проверкой QoS, дерева и открытием RViz:
+
+```bash
+ROS_DOMAIN_ID=201 python3 tools/record_pr06.py --output /tmp/pr06-new-check --rviz
+```
+
+Сценарий ждёт обнаружения endpoints для каждого запроса CLI, явно задаёт
+тип сообщения и QoS, проверяет единственного издателя tf и останавливает
+свои процессы. Позднее чтение проверяется до публикации состояний колёс.
+Для работы без окна опустите `--rviz`.
+
+Материалы: [таблица фреймов](evidence/pr06/frames.md),
+[проверка модели](evidence/pr06/model-check.txt),
+[QoS](evidence/pr06/tf-qos.txt), [дерево tf2](evidence/pr06/frames.pdf),
+[RViz](evidence/pr06/rviz.png), [отчёт](evidence/pr06/report.json).
+
+CI выполняет сборку, тесты, live-опыт tf2 и запуск RViz в Xvfb, затем
+проверяет отчёт официальным checker из зафиксированного course kit `v1-w12`.
+Реализация и evidence фиксируются двумя коммитами; `report.commit`
+указывает на коммит реализации.
