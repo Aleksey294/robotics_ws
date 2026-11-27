@@ -1,0 +1,5 @@
+$ PYTHONPATH=/home/alexai/robotics_ws/src/patrol python3 -m pytest 'src/patrol/test/test_node_parameters.py::test_invalid_frequency_keeps_active_state[0.0]' -q
+.                                                                        [100%]
+1 passed in 0.27s
+
+[exit 0]
