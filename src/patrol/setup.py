@@ -17,7 +17,7 @@ setup(
     zip_safe=True,
     maintainer='AlexAI',
     maintainer_email='zavrazin2006@mail.ru',
-    description='Timer-driven turtlesim patrol node.',
+    description='Timer-driven turtlesim patrol with validated runtime parameters.',
     license='Apache-2.0',
     extras_require={
         'test': [

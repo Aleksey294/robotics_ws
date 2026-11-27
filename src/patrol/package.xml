@@ -3,11 +3,12 @@
 <package format="3">
   <name>patrol</name>
   <version>0.0.0</version>
-  <description>Timer-driven turtlesim patrol node.</description>
+  <description>Timer-driven turtlesim patrol with validated runtime parameters.</description>
   <maintainer email="zavrazin2006@mail.ru">AlexAI</maintainer>
   <license>Apache-2.0</license>
 
   <depend>geometry_msgs</depend>
+  <depend>rcl_interfaces</depend>
   <depend>rclpy</depend>
   <depend>turtlesim</depend>
 
